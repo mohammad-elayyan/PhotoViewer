@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="all.min.css">
+
+    <title>Photo Viewer</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: auto;
+        }
+
+        .container {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back {
+            width: 500px;
+            height: 350px;
+            position: relative;
+            padding: 0;
+            overflow: hidden;
+            background: #f2f2f2;
+        }
+
+        .img-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .back img {
+            max-width: 100%;
+            min-width: 100%;
+            max-height: 100%;
+            min-height: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .magnifier {
+            position: relative;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f3f3;
+            height: 5vh;
+            z-index: 1;
+        }
+
+        .zoom,
+        .min,
+        .reset,
+        .full,
+        .close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border: 1px solid #000;
+            border-radius: 50%;
+            text-align: center;
+            font-weight: 900;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .close {
+            position: absolute;
+            top: auto;
+            right: 0;
+            margin-right: 10px;
+        }
+
+        .full {
+            position: absolute;
+            top: auto;
+            left: 0;
+            margin-left: 10px;
+        }
+
+        .hide,
+        .show {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="magnifier">
+        <div class="full" title="full screen">
+            <i class="fa fa-expand"></i>
+        </div>
+        <div class="zoom" title="zoom in">
+            <i class="fa fa-search-plus"></i>
+        </div>
+        &nbsp;
+        <div class="min" title="zoom out">
+            <i class="fa fa-search-minus"></i>
+        </div>
+        &nbsp;
+        <div class="reset" title="reset">
+            <i class="fa fa-redo"></i>
+        </div>
+        <div class="close" title="hide">
+            <i class="fa fa-eye-slash" id="hide"></i>
+        </div>
+    </div>
+    <div class="container">
+        <div class="back">
+            <div class="img-container">
+                <img src="CV-Markets-Review.png" alt="Image">
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const back = document.querySelector('.back');
+        const imgCont = document.querySelector('.img-container');
+        const img = document.querySelector('.back img');
+        const close = document.querySelector('.close');
+        const s = document.getElementById('hide');
+        const zoom = document.querySelector('.zoom');
+        const min = document.querySelector('.min');
+        const reset = document.querySelector('.reset');
+        const full = document.querySelector('.full');
+
+        let i = 0;
+        let j = 1;
+        zoom.addEventListener('click', (e) => {
+            // console.log(newclientY);
+            i++;
+            if (i < 10) {
+                imgCont.style.transform = "scale(" + j + "." + i + ")";
+            } else {
+                i = 0;
+                j++;
+                imgCont.style.transform = "scale(" + j + "." + i + ")";
+            }
+        })
+
+        min.addEventListener('click', (e) => {
+            if (i <= 0) {
+                stop();
+            } else {
+                i--;
+                if (j > 1) {
+                    if (i == 0) {
+                        j--;
+                        i = 9;
+                        imgCont.style.transform = "scale(" + j + "." + i + ")";
+                    }
+                }
+                imgCont.style.transform = "scale(" + j + "." + i + ")";
+                // img.style.transform = "translate(-50%, -50%)";
+            }
+        })
+
+        close.addEventListener('click', () => {
+            back.classList.toggle('hide');
+            if (s.getAttribute('class') == 'fa fa-eye-slash') {
+                s.setAttribute('class', 'fa fa-eye');
+            } else {
+                s.setAttribute('class', 'fa fa-eye-slash');
+            }
+            // show.style.display = "initial";
+        })
+
+        full.addEventListener('click', () => {
+            // back.style.width = "100%";
+            // img.style.width = "100%";
+            // back.style.height = "100vh";
+            // img.style.height = "100vh";
+            img.requestFullscreen()
+        })
+
+        back.addEventListener('mousedown', (e) => {
+
+            back.addEventListener('dragover', mouseMove);
+            back.addEventListener('mouseup', mouseUp);
+
+            function mouseMove(e) {
+
+                const rect = back.getBoundingClientRect();
+
+                let clientX = e.clientX - rect.right;
+                let clientY = e.clientY - rect.bottom;
+
+                let width = rect.width;
+                let height = rect.height;
+
+                let newclientX = clientX / width * 100;
+                let newclientY = clientY / height * 100;
+
+                img.style.transform = 'translate(' + newclientX + '%, ' + newclientY + '%)';
+            }
+
+            function mouseUp() {
+                back.removeEventListener('dragover', mouseMove);
+                back.removeEventListener('mouseup', mouseUp);
+            }
+        })
+
+
+        reset.addEventListener('click', (e) => {
+            img.style.transform = 'translate(-50%, -50%) scale(1)';
+            imgCont.style.transform = 'scale(1)';
+
+        })
+    </script>
+
+</body>
+
+</html>
